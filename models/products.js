@@ -13,6 +13,7 @@ const ProductsSchema =  new mongoose.Schema({
     m: { type: Number, default: 0 },
     xl: { type: Number, default: 0 },
     xxl: { type: Number, default: 0 },
+    stock: {  type: Number, default: 0 },
   },
   offer: {type: Number},
   image_url: { type: String }
