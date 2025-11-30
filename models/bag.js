@@ -3,9 +3,11 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const BagSchema = new mongoose.Schema({
   login_id: { type: String, required: true },
-  product_id:[{ type: String, required: true }],
-  is_wishlisted: { type: Boolean },
-  in_bag: { type: Boolean },
+  product_details:[{
+    product_id: { type: String, required: true },
+    is_wishlisted: { type: Boolean },
+    in_bag: { type: Boolean },
+  }],
 });
 
 // Optional: Auto-increment plugin example if you want an order number

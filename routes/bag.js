@@ -5,7 +5,7 @@ const Bag = require('../models/bag');
 // GET all Bag
 router.get('/', async (req, res) => {
   try {
-    const bag = await Bag.find().populate('product_id'); // populate product details
+    const bag = await Bag.find(); // populate product details
     res.json(bag);
   } catch (err) {
     res.status(500).send('Error: ' + err.message);
@@ -13,9 +13,9 @@ router.get('/', async (req, res) => {
 });
 
 // GET bag by ID
-router.get('/:id', async (req, res) => {
+router.get('/:login_id', async (req, res) => {
   try {
-    const bag = await Bag.findById(req.params.id).populate('product_id');
+    const bag = await Bag.find({login_id:req.params.login_id});
     if (!bag) return res.status(404).send('Order not found');
     res.json(bag);
   } catch (err) {
@@ -27,16 +27,12 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const {
     login_id,
-    product_id,
-    is_wishlisted,
-    in_bag,
+    product_details,
   } = req.body;
 
   const newBag = new Bag({
     login_id,
-    product_id,
-    is_wishlisted,
-    in_bag,
+    product_details,
   });
 
   try {
@@ -48,13 +44,23 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH: Update an bag
-router.patch('/:id', async (req, res) => {
+router.patch('/:login_id', async (req, res) => {
   try {
-    const updatedBag = await Bag.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
+    const updatedBag = await Bag.findOneAndUpdate(
+      {
+        login_id:req.params.login_id,"product_details.product_id": { $ne: req.body.product_details.product_id }
+      },
+      {
+        $push: {
+          product_details: {
+            product_id: req.body.product_id,
+            is_wishlisted: req.body.is_wishlisted,
+            in_bag: req.body.in_bag
+          }
+        }
+      },
       { new: true }
-    ).populate('product_id');
+    );
 
     if (!updatedBag) return res.status(404).send('Order not found');
     res.json(updatedBag);
@@ -64,12 +70,10 @@ router.patch('/:id', async (req, res) => {
 });
 
 // DELETE: Delete an Bag
-router.delete('/:id', async (req, res) => {
+router.delete('/:login_id', async (req, res) => {
   try {
-    const foundBag = await Bag.findById(req.params.id);
+    const foundBag = await Bag.findOneAndDelete({login_id:req.params.login_id});
     if (!foundBag) return res.status(404).send('Order not found');
-
-    await foundBag.deleteOne();
     res.json({ message: 'Order deleted successfully' });
   } catch (err) {
     res.status(500).send('Error: ' + err.message);
