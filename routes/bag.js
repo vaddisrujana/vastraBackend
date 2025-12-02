@@ -48,7 +48,7 @@ router.patch('/:login_id', async (req, res) => {
   try {
     const updatedBag = await Bag.findOneAndUpdate(
       {
-        login_id:req.params.login_id,"product_details.product_id": { $ne: req.body.product_details.product_id }
+        login_id:req.params.login_id,
       },
       {
         $push: {
